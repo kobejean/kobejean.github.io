@@ -1,11 +1,11 @@
 <<<<<<< HEAD
 
 # SEO settings
-title: kobejean.code
+title: Simplest
 description: "A free Jekyll theme for download"
 keywords: "Jekyll, theme, free, download, SEO, blog, web"
 url: http://nandomoreira.me
-baseurl: ""
+baseurl: "/simplest"
 # baseurl: null
 
 google_analytics: UA-52446115-1
@@ -51,21 +51,21 @@ sass:
 
 # Author settings
 author:
-  name     : Jean Flaherty
-  job      : Programmer
+  name     : Fernando Moreira
+  job      : Frontend Engineer
   bio      : "Enthusiast performance, responsive design and usability, always looking for the best project and good coffee."
   thumb    : /images/author.jpg
-  email    : kobejean.code.@gmail.com
-  #url      : http://nandomoreira.me
-  #github   : http://github.com/nandomoreirame
-  #twitter  : http://twitter.com/nandomoreirame
-  #facebook : http://facebook.com/fernando.dev
-  #linkedin : http://linkedin.com/in/nandomoreirame
+  email    : nandomoreira.me@gmail.com
+  url      : http://nandomoreira.me
+  github   : http://github.com/nandomoreirame
+  twitter  : http://twitter.com/nandomoreirame
+  facebook : http://facebook.com/fernando.dev
+  linkedin : http://linkedin.com/in/nandomoreirame
 
 # social settings
 og_locale: "pt_BR"
 twitter_card: "summary_large_image"
-#twitter_site: "@nandomoreirame"
+twitter_site: "@nandomoreirame"
 
 gems:
   - bourbon
