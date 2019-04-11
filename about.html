@@ -1,0 +1,27 @@
+---
+layout: page
+title: "About Me"
+description: "About me"
+---
+
+<div id="aboutme" class="row">
+<div class="col-md-12">
+    <h1 class="section-header" style="padding-bottom: 0.8em;">Jean Flaherty</h1>
+
+    {% if site.email %}
+    <div class="row">
+        <div class="col-md-3"><b>Email</b></div>
+        <div class="col-md-8"><a href="mailto:{{ site.email }}" target="_top">{{ site.email }}</a></div>
+    </div>
+    {% endif %}
+
+    {% if site.github_username %}
+    <div class="row">
+        <div class="col-md-3"><b>Github</b></div>
+        <div class="col-md-8"><a href="https://github.com/{{ site.github_username }}">https://github.com/{{ site.github_username }}</a></div>
+    </div>
+    {% endif %}
+
+</div>
+
+</div>
