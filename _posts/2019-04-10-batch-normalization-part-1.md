@@ -121,15 +121,14 @@ the network activation distributions still experience covariate shift.
 So if ICS doesn't explain batch norm's success then what explains the 14x
 train time speed up on ImageNet? What the recent paper revealed was that batch
 norm has a smoothening effect on the loss landscape of neural networks measured
-by the β-Lipschitzness of the loss function. In addition to smoothening the loss
-landscape, batch norm also makes the gradients more Lipschitz making the
-gradients more predictable. Having stable and consistent gradients gives us
-confidence that making large steps with our computed gradients won't take us
-far from where our true gradients should take us. This allows us to increase
-the learning rate and also makes our path length from initialization to
-global minimum much shorter because we avoid traveling in random directions.
-Batch norm's effect on the smoothness of the loss landscape and gradients seems
-to be the main reason for batch norm's success.
+by the β-Lipschitzness of the loss function's gradient. A smaller Lipschitz
+constant on the gradients means that our gradients are more predictable.
+This gives us confidence that even if we take large steps with our computed
+gradients, we won't veer far from where our true gradients should be taking us.
+This allows us to increase the learning rate and also makes our path length
+from initialization to global minimum much shorter because we avoid traveling
+in random directions. Batch norm's effect on the smoothness of the loss
+landscape seems to be the main reason for batch norm's success.
 
 ## References
 
