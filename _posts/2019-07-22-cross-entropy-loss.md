@@ -2,7 +2,7 @@
 layout:     post
 title:      "The Benefits of Cross Entropy Loss"
 subtitle:   "A look into the advantages of using cross entropy loss for classification problems."
-date:       2019-07-21 14:45
+date:       2019-07-22 00:02
 author:     "Jean Atsumi Flaherty"
 header-img: "img/cross-entropy/cross-entropy-thumbnail.png"
 category:   machine-learning
@@ -43,9 +43,9 @@ $$
 \L(\theta | \D) = \P(\D | \theta)
 $$
 
-where $$\D$$ is our dataset and $$ \theta $$ is our model parameters.
+where $$\D$$ is our dataset (a set of pairs of input and target vectors $$\x$$ and $$\y$$) and $$ \theta $$ is our model parameters.
 
-Since we are usually assuming that our data is independent and identically distributed, the conditional probability can be rewritten as a join probability over each example:
+Since the dataset $$\D$$ has multiple datum, the conditional probability can be rewritten as a joint probability of per example probabilities. Note that we are assuming that our data is independent and identically distributed. This assumption allows us to compute the joint probability by simply multiplying the per example conditional probabilities:
 
 $$
 P(\D | \theta) \stackrel{i.i.d}{=} \prod_{(\x,\y) \in \D} P(\x, \y | \theta)
@@ -63,18 +63,19 @@ $$
 P(\x,\y | \theta) = \model_i
 $$
 
-where $$\model_i$$ is the component of the correct category in the model output.
+where $$\model$$ is the model output and.
 
-Notice the cross entropy of the output vector is equal to the log of $$\model_i$$ because our "true" distribution is a one hot vector:
+Notice the cross entropy of the output vector is equal to $$-\log(\model_i)$$ because our "true" distribution is a one hot vector:
 
 $$
 \begin{align}
-  H(\y, f(\x)) &= - \sum_{j=1}^{n} \y_j\log(\model_j) \\
+  H(\y, \model) &= - \sum_{j=1}^{n} \y_j\log(\model_j) \\
+  &= - \y_i\log(\model_i) \\
   &= - \log(\model_i) \\
 \end{align}
 $$
 
-where $$\y$$ is one hot encoded the target vector.
+where $$\y$$ is the one hot encoded target vector.
 
 So in total we have:
 
@@ -83,7 +84,7 @@ $$
     \argmax_\theta \L(\theta | \D) &= \argmax_\theta P(\D | \theta) \\
     &= \argmax_\theta \prod_{(\x,\y) \in \D} P(\x,\y | \theta) \\
     &= \argmin_\theta \sum_{(\x,\y) \in \D} -\log(P(\x,\y | \theta)) \\
-    &= \argmin_\theta \sum_{(\x,\y) \in \D} -\log(\model_i) \\
+    &= \argmin_\theta \sum_{(\x,\y) \in \D} -\log(\model_i) \textrm{, where } i \textrm{ is the index of the correct category } \\
     &= \argmin_\theta \sum_{(\x,\y) \in \D} -\sum_{j=1}^{n} \y_j\log(\model_j) \\
     &= \argmin_\theta \sum_{(\x,\y) \in \D} H(\y, \model) \\
 \end{align}
@@ -93,11 +94,28 @@ Thus we have shown that maximizing the likelihood of a classification model is e
 
 ## Computational Benefit
 
+One thing you might ask is what difference would it make by using log probabilities instead of just the probabilities themselves? Well the main reason lies how much computational complexity you save by using logarithms.  As demonstrated in the section above, in order to compute the likelihood of the model, we need to calculate a joint probability over each dataset example. This involves multiplying all the per example probabilities together:
 
+$$
+\L(\theta | \D) = \prod_{(\x,\y) \in \D} P(\x,\y | \theta)
+$$
+
+Now if we were to do gradient decent on this joint probability directly, we would have to compute the derivative of this pi product. The problem with this however is that the number of terms of this derivative grows exponentially in the number of products, $$2^(n-1)$$ to be exact. This can get nasty very quickly.
+
+However this issue can be avoided with log probabilities because by the product rule of logarithms, we can turn the pi product of probabilities inside the logarithm into a sum of logarithms:
+
+$$
+\log\left(\prod_{(\x,\y) \in \D} P(\x,\y | \theta)\right) = \sum_{(\x,\y) \in \D} \log(P(\x,\y | \theta))
+$$
+
+This way when we compute the gradient the number of terms in the derivative only grows linearly which saves us a lot of computation.
+
+## Numerical stability
+
+Another benefit of cross entropy losses/log probabilities is numerical stability. Since often times the joint probabilities get extremely tiny, we risk having issues with arithmetic underflow. Using log-probabilities solves this issue by keeping the values in a reasonable range.
 
 
 ## References
 
-1. Shibani Santurkar, Dimitris Tsipras, Andrew Ilyas, and Aleksander Madry. How Does Batch Normalization Help Optimization?. *arXiv preprint arXiv:1805.11604*, 2018.
-2. Yurii Nesterov. *Introductory Lectures on Convex Optimization: A Basic Course*. Springer Science & Business Media, 2014.
-3. Ioannis Mitliagkas. *IFT 6085 - Lecture 3: Gradient descent for smooth and for strongly convex functions*. IFT 6085, University of Montreal, 2018.
+1. Morgan Giraud. *[ML notes: Why the log-likelihood?](https://blog.metaflow.fr/ml-notes-why-the-log-likelihood-24f7b6c40f83)*
+2. Rob DiPietro. *[A Friendly Introduction to Cross-Entropy Loss](https://rdipietro.github.io/friendly-intro-to-cross-entropy-loss/#cross-entropy)*
