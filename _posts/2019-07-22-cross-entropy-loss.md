@@ -63,7 +63,7 @@ $$
 P(\x,\y | \theta) = \model_i
 $$
 
-where $$\model$$ is the model output and.
+where $$\model$$ is the model output and $$i$$ is the index of the correct category.
 
 Notice the cross entropy of the output vector is equal to $$-\log(\model_i)$$ because our "true" distribution is a one hot vector:
 
@@ -94,13 +94,13 @@ Thus we have shown that maximizing the likelihood of a classification model is e
 
 ## Computational Benefit
 
-One thing you might ask is what difference would it make by using log probabilities instead of just the probabilities themselves? Well the main reason lies how much computational complexity you save by using logarithms.  As demonstrated in the section above, in order to compute the likelihood of the model, we need to calculate a joint probability over each dataset example. This involves multiplying all the per example probabilities together:
+One thing you might ask is what difference would it make by using log probabilities instead of just the probabilities themselves? Well the main reason lies in how much computational complexity you save by using logarithms.  As demonstrated in the section above, in order to compute the likelihood of the model, we need to calculate a joint probability over each dataset example. This involves multiplying all the per example probabilities together:
 
 $$
 \L(\theta | \D) = \prod_{(\x,\y) \in \D} P(\x,\y | \theta)
 $$
 
-Now if we were to do gradient decent on this joint probability directly, we would have to compute the derivative of this pi product. The problem with this however is that the number of terms of this derivative grows exponentially in the number of products, $$2^(n-1)$$ to be exact. This can get nasty very quickly.
+Now if we were to do gradient decent on this joint probability directly, we would have to compute the derivative of this pi product. The problem with this however is that the number of terms of this derivative grows exponentially in the number of products, $$2^{n-1}$$ to be exact. This can get nasty very quickly.
 
 However this issue can be avoided with log probabilities because by the product rule of logarithms, we can turn the pi product of probabilities inside the logarithm into a sum of logarithms:
 
