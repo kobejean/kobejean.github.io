@@ -109,7 +109,7 @@ $$
 \log\left(\prod_{(\x,\y) \in \D} P(\x,\y | \theta)\right) = \sum_{(\x,\y) \in \D} \log(P(\x,\y | \theta))
 $$
 
-Using log-probabilities keeps the values in a reasonable range.
+Using log-probabilities keeps the values in a reasonable range. It also keeps computing the gradient simple because it is easier to aggregate the gradient of a sum of functions than it is a product of functions.
 
 ## Well-behaved Gradients
 
