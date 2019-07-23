@@ -21,6 +21,7 @@ $$
 \newcommand{\gradDirWrt}[2]{ \frac{ \gradWrt{#1}{#2} }{\| \gradWrt{#1}{#2} \|} }
 \newcommand{\partialD}[2]{ \frac{ \partial#1 }{ \partial#2 } }
 \newcommand{\partialDTwo}[3]{ \frac{ \partial#1 }{ \partial#2\partial#3 } }
+\newcommand{\derivativeWrt}[2]{ \frac{ d#1 }{ d#2 } }
 
 \newcommand{\L}{ \mathcal{L} }
 \newcommand{\P}{ P }
@@ -92,15 +93,15 @@ $$
 
 Thus we have shown that maximizing the likelihood of a classification model is equivalent to minimizing the cross entropy of the models categorical output vector and thus cross entropy loss has a valid theoretical justification.
 
-## Computational Benefit
+## Numerical Stability
 
-One thing you might ask is what difference would it make by using log probabilities instead of just the probabilities themselves? Well the main reason lies in how much computational complexity you save by using logarithms.  As demonstrated in the section above, in order to compute the likelihood of the model, we need to calculate a joint probability over each dataset example. This involves multiplying all the per example probabilities together:
+One thing you might ask is what difference would it make by using log probabilities instead of just the probabilities themselves given the logarithm is monotonic? Well one of the main reasons lies in its property of numerical stability.  As demonstrated in the section above, in order to compute the likelihood of the model, we need to calculate a joint probability over each dataset example. This involves multiplying all the per example probabilities together:
 
 $$
 \L(\theta | \D) = \prod_{(\x,\y) \in \D} P(\x,\y | \theta)
 $$
 
-Now if we were to do gradient decent on this joint probability directly, we would have to compute the derivative of this pi product. The problem with this however is that the number of terms of this derivative grows exponentially in the number of products, $$2^{n-1}$$ to be exact. This can get nasty very quickly.
+This pi product becomes very tiny. Consider the case where each probability is around 0.01 (e.g trying to predict a class over 100 classes) and we are using a batch size of 128. The joint probability would be around $$1 \times 10^{-256}$$ which is well beyond low enough to cause arithmetic underflow in most cases.
 
 However this issue can be avoided with log probabilities because by the product rule of logarithms, we can turn the pi product of probabilities inside the logarithm into a sum of logarithms:
 
@@ -108,11 +109,56 @@ $$
 \log\left(\prod_{(\x,\y) \in \D} P(\x,\y | \theta)\right) = \sum_{(\x,\y) \in \D} \log(P(\x,\y | \theta))
 $$
 
-This way when we compute the gradient the number of terms in the derivative only grows linearly which saves us a lot of computation.
+Using log-probabilities keeps the values in a reasonable range.
 
-## Numerical stability
+## Well-behaved Gradients
 
-Another benefit of cross entropy losses/log probabilities is numerical stability. Since often times the joint probabilities get extremely tiny, we risk having issues with arithmetic underflow. Using log-probabilities solves this issue by keeping the values in a reasonable range.
+Using log-probabilities has the additional effect of keeping gradients from varying too widely. Many probability distributions we deal with in machine learning belong to the exponential family. Take for example a normal distribution:
+
+$$
+p(x) = e^{-\frac{1}{2} x^2}
+$$
+
+Notice what happens when we turn this into a negative log-probability:
+
+$$
+\begin{align}
+  -\log(p(x)) &= -log(e^{-\frac{1}{2} x^2}) \\
+  &= \frac{1}{2} x^2 \\
+\end{align}
+$$
+
+Now the derivative of $$-\log(p(x))$$ is simply $$x$$ which after the update rule gives us exactly the x value (0) to maximize the likelihood if our learning rate is set to 1.
+
+Obviously this is just a toy example but other probability distributions of the exponential family will also do quite well as the log probability is at most polynomial in the parameters.
+
+Also consider the common case of using softmax before the cross entropy loss:
+
+$$
+f(\x) = \frac{e^{\x}}{\sum_{i=0}^{n}e^{\x_i}}
+$$
+
+Recall that the cross entropy loss is given by:
+
+$$
+H(y, f(\x)) = -\y\cdot\log(f(\x))
+$$
+
+Now try compute the gradient of the cross entropy loss w.r.t $$\x$$.
+
+$$
+\begin{align}
+  \gradWrt{H(\y, f(\x))}{\x} &= -\left(\partialD{\left( \log(e^{\x}) - \vect{1}\log\left(\sum_{i=1}^{n}e^{\x_i}\right) \right)}{\x}\right)^\intercal\y \\
+  &= -\left( I - \vect{1}\partialD{\log\left(\sum_{i=1}^{n}e^{\x_i}\right)}{\x} \right)^\intercal\y \\
+  &= -\left( I - \vect{1}f(\x)^\intercal \right)^\intercal\y \\
+  &= \left(f(\x)\vect{1}^\intercal - I \right)\y \\
+  &= f(\x)\vect{1}^\intercal\y - \y \\
+  &= f(\x)\sum_{i=1}^{n}\y - \y \\
+  &= f(\x) - \y \\
+\end{align}
+$$
+
+As we can see this gives us a well-behaved gradient that is bounded by $$[-1,1]$$ for each component.
 
 
 ## References
