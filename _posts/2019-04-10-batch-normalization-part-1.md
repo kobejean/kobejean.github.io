@@ -3,7 +3,7 @@ layout:     post
 title:      "Batch Normalization (Part 1)"
 subtitle:   "The myths and truth surrounding batch normalization."
 date:       2019-04-10 22:00
-author:     "Jean Atsumi Flaherty"
+author:     "Jean A. Flaherty"
 header-img: "img/batch-norm/batch-norm-thumbnail-2.png"
 category:   machine-learning
 tags:       [machine learning]

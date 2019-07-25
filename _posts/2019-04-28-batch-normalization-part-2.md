@@ -3,7 +3,7 @@ layout:     post
 title:      "Batch Normalization (Part 2)"
 subtitle:   "The smoothening effect of batch normalization."
 date:       2019-04-28 14:45
-author:     "Jean Atsumi Flaherty"
+author:     "Jean A. Flaherty"
 header-img: "img/batch-norm/beta-smoothness.png"
 category:   machine-learning
 tags:       [machine learning]
