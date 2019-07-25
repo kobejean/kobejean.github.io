@@ -3,7 +3,7 @@ layout:     post
 title:      "The Benefits of Cross Entropy Loss"
 subtitle:   "A look into the advantages of using cross entropy loss for classification problems."
 date:       2019-07-22 00:02
-author:     "Jean Atsumi Flaherty"
+author:     "Jean A. Flaherty"
 header-img: "img/cross-entropy/cross-entropy-thumbnail.png"
 category:   machine-learning
 tags:       [machine learning]
@@ -101,7 +101,7 @@ $$
 \L(\theta | \D) = \prod_{(\x,\y) \in \D} P(\x,\y | \theta)
 $$
 
-This pi product becomes very tiny. Consider the case where each probability is around 0.01 (e.g trying to predict a class over 100 classes) and we are using a batch size of 128. The joint probability would be around $$1 \times 10^{-256}$$ which is well beyond low enough to cause arithmetic underflow in most cases.
+This pi product becomes very tiny. Consider the case where each probability is around 0.01 (e.g trying to predict a class over 100 classes) and we are using a batch size of 128. The joint probability would be around $$1 \times 10^{-256}$$ which is definitely low enough to cause arithmetic underflow.
 
 However this issue can be avoided with log probabilities because by the product rule of logarithms, we can turn the pi product of probabilities inside the logarithm into a sum of logarithms:
 
@@ -119,18 +119,28 @@ $$
 p(x) = e^{-\frac{1}{2} x^2}
 $$
 
-Notice what happens when we turn this into a negative log-probability:
+Notice what happens when we turn this into a negative log-probability and take the derivative:
 
 $$
 \begin{align}
-  -\log(p(x)) &= -log(e^{-\frac{1}{2} x^2}) \\
-  &= \frac{1}{2} x^2 \\
+  \derivativeWrt{(-\log(p(x)))}{x} &= \derivativeWrt{(-log(e^{-\frac{1}{2} x^2}))}{x} \\
+  &= \derivativeWrt{(\frac{1}{2} x^2)}{x} \\
+  &= x \\
 \end{align}
 $$
 
-Now the derivative of $$-\log(p(x))$$ is simply $$x$$ which after the update rule gives us exactly the x value (0) to maximize the likelihood if our learning rate is set to 1.
+Notice the derivative $$x$$ will give us exactly the right $$x$$ value ($$0$$) after the update rule to maximize the likelihood if our learning rate is set to 1.
 
-Obviously this is just a toy example but other probability distributions of the exponential family will also do quite well as the log probability is at most polynomial in the parameters.
+$$
+\begin{align}
+  x' &= x - \eta \derivativeWrt{(-\log(p(x)))}{x} \\
+  &= x - \eta x \\
+  &= 0 \\
+  &= \argmax_x p(x) \\
+\end{align}
+$$
+
+Obviously this is just a toy example but other probability distributions of the exponential family will also do quite well as the log probability is at most polynomial in the parameters. This keeps the gradient from varying widely and means that the same learning rate should give us consistent step sizes.
 
 Also consider the common case of using softmax before the cross entropy loss:
 
@@ -148,12 +158,15 @@ Now try compute the gradient of the cross entropy loss w.r.t $$\x$$.
 
 $$
 \begin{align}
-  \gradWrt{H(\y, f(\x))}{\x} &= -\left(\partialD{\left( \log(e^{\x}) - \vect{1}\log\left(\sum_{i=1}^{n}e^{\x_i}\right) \right)}{\x}\right)^\intercal\y \\
-  &= -\left( I - \vect{1}\partialD{\log\left(\sum_{i=1}^{n}e^{\x_i}\right)}{\x} \right)^\intercal\y \\
-  &= -\left( I - \vect{1}f(\x)^\intercal \right)^\intercal\y \\
+  \partialD{H(\y, f(\x))}{\x} &= \partialD{\left( -\y\cdot\log(f(\x)) \right)}{\x} \\
+  &= -\y^\intercal \partialD{\log\left(\frac{e^\x}{\sum_{i=0}^{n}e^{\x_i}}\right)}{\x} \\
+  &= -\y^\intercal \partialD{\left( \log(e^\x) - \vect{1}\log\left(\sum_{i=1}^{n}e^{\x_i}\right) \right)}{\x} \\
+  &= -\y^\intercal \left( I - \vect{1}\partialD{\log\left(\sum_{i=1}^{n}e^{\x_i}\right)}{\x} \right) \\
+  &= -\y^\intercal \left( I - \vect{1} \left(\frac{e^\x}{\sum_{i=1}^{n}e^{\x_i}} \right)^\intercal \right)  \\
+  &= -\y^\intercal \left( I - \vect{1}f(\x)^\intercal \right)  \\
   &= \left(f(\x)\vect{1}^\intercal - I \right)\y \\
   &= f(\x)\vect{1}^\intercal\y - \y \\
-  &= f(\x)\sum_{i=1}^{n}\y - \y \\
+  &= f(\x)\sum_{i=1}^{n}\y_i - \y \\
   &= f(\x) - \y \\
 \end{align}
 $$
