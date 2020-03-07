@@ -38,7 +38,7 @@ Here's a solution implemented in swift:
 
 ```swift
 class Solution {
-    func greedyChoice(seq: AnySequence<Character>, close: Character) -> Int {
+    func solveSubproblem(seq: AnySequence<Character>, close: Character) -> Int {
         var maxLen = 0, balance = 0, start = -1
         for (idx, char) in seq.enumerated() {
             // decrement balance when we find a close and increment when open
@@ -57,9 +57,9 @@ class Solution {
 
     func longestValidParentheses(_ s: String) -> Int {
         // scanning from the left will solve the problem in S1 as described in the proof
-        let maxLenInS1 = greedyChoice(seq: AnySequence(s), close: ")")
+        let maxLenInS1 = solveSubproblem(seq: AnySequence(s), close: ")")
         // scanning from the right will solve the problem in S2 as described in the proof
-        let maxLenInS2 = greedyChoice(seq: AnySequence(s.reversed()), close: "(")
+        let maxLenInS2 = solveSubproblem(seq: AnySequence(s.reversed()), close: "(")
         // taking the max of the two results will give us the correct answer
         return max(maxLenInS1, maxLenInS2)
     }
@@ -118,8 +118,8 @@ $$]$$. This fact combined with observation 1 & 2 means that valid sequences
 are delimited by $$]$$ in $$S_1$$ and $$[$$ in $$S_2$$ and the max length of
 the delimited sequences are the solutions for $$S_1$$ and $$S_2$$ respectively.
 
-Lemma - The `greedyChoice` algorithm solves $$S_1$$ and $$S_2$$ individually:
-> `greedyChoice(seq: AnySequence(s), close: ")")`
+Lemma - The `solveSubproblem` algorithm solves $$S_1$$ and $$S_2$$ individually:
+> `solveSubproblem(seq: AnySequence(s), close: ")")`
 scans the sequence left to right incrementing the balance when $$($$ and
 decrementing when $$)$$. When balance is < 0 we know that we've encountered an
 invalid parenthesis and thus parameters are reset to start the search for the
@@ -129,10 +129,10 @@ $$S_1$$ the balance stays > 0 and thus nothing out side of $$S_1$$ is considered
 This is effectively finding the largest length of subsequence delimited by $$]$$
 in $$S_1$$ and with observation 7 we know that this solves $$S_1$$.
 A symmetric argument can be used to show that
-`greedyChoice(seq: AnySequence(s.reversed()), close: "(")` solves $$S_2$$ by
+`solveSubproblem(seq: AnySequence(s.reversed()), close: "(")` solves $$S_2$$ by
 doing the same thing in reverse. Q.E.D.
 
 Proof - The `longestValidParentheses` algorithm solves the problem for the entire sequence:
 > The `longestValidParentheses` algorithm solves the problem by first solving
-$$S_1$$ and $$S_2$$ with `greedyChoice` and returning the max of the two results.
+$$S_1$$ and $$S_2$$ with `solveSubproblem` and returning the max of the two results.
 By observation 6 this solves the problem for the entire sequence. Q.E.D.
