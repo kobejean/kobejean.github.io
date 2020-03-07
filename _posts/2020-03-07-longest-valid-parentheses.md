@@ -116,7 +116,7 @@ Observation 7:
 > By definition $$S_1$$ does not contain $$[$$ and $$S_2$$ does not contain
 $$]$$. This fact combined with observation 1 & 2 means that valid sequences
 are delimited by $$]$$ in $$S_1$$ and $$[$$ in $$S_2$$ and the max length of
-the delimited sequences are the solutions for $$S_1$$ and $$S_2$$.
+the delimited sequences are the solutions for $$S_1$$ and $$S_2$$ respectively.
 
 Lemma - The `greedyChoice` algorithm solves $$S_1$$ and $$S_2$$ individually:
 > `greedyChoice(seq: AnySequence(s), close: ")")`
